@@ -18,7 +18,7 @@ from .models import FormattedCV
 from .utils import process_cv
 
 # Obtener la clave API de OpenAI desde variables de entorno
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'TU_CLAVE_API_AQUI')
+OPENAI_API_KEY = "TU_CLAVE_API_AQUI"
 
 def index(request):
     if request.method == 'POST':
