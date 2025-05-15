@@ -6,13 +6,19 @@ import os
 import tempfile
 import shutil
 import time
+import dotenv
+from pathlib import Path
+
+# Cargar variables de entorno desde el archivo .env
+env_path = Path('.') / '.env'
+dotenv.load_dotenv(dotenv_path=env_path)
 
 from .forms import CVUploadForm
 from .models import FormattedCV
 from .utils import process_cv
 
-# Clave API de OpenAI
-#OPENAI_API_KEY = "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"
+# Obtener la clave API de OpenAI desde variables de entorno
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'TU_CLAVE_API_AQUI')
 
 def index(request):
     if request.method == 'POST':
