@@ -12,7 +12,7 @@ from .models import FormattedCV
 from .utils import process_cv
 
 # Clave API de OpenAI
-OPENAI_API_KEY = "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"
+#OPENAI_API_KEY = "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"
 
 def index(request):
     if request.method == 'POST':
