@@ -1,0 +1,48 @@
+﻿{% extends 'formatter/base.html' %}
+
+{% block content %}
+<div id="app">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Subir un CV para formatear</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="cv-form" @submit="onSubmit">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="cv_file" class="form-label">Seleccionar CV (PDF o DOCX)</label>
+                            <input type="file" name="cv_file" id="cv_file" class="form-control" required accept=".pdf,.docx,.doc" @change="updateFileName">
+                            <div class="form-text">Formatos aceptados: PDF, DOCX</div>
+                            <div class="file-info" v-if="fileName">
+                                Archivo seleccionado: <span class="file-selected">\</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="template_file" class="form-label">Seleccionar plantilla (DOCX)</label>
+                            <input type="file" name="template_file" id="template_file" class="form-control" required accept=".docx" @change="updateTemplateName">
+                            <div class="form-text">Formato aceptado: DOCX</div>
+                            <div class="file-info" v-if="templateName">
+                                Plantilla seleccionada: <span class="file-selected">\</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary" :disabled="isProcessing">
+                                <span v-if="isProcessing">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Procesando...
+                                </span>
+                                <span v-else>Procesar CV</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
