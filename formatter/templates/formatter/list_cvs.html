@@ -1,0 +1,96 @@
+﻿{% extends 'formatter/base.html' %}
+
+{% block content %}
+<div id="list-app">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <div class="me-2">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 3v4h6v-4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12h6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 16h6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h5 class="mb-0">Historial de CVs procesados</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if cvs %}
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Candidato</th>
+                                        <th>Fecha</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cv in cvs %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-placeholder me-3" style="background-color: var(--azul-electrico); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                                    {{ cv.candidate_name|slice:":1" }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">{{ cv.candidate_name }}</div>
+                                                    <div class="small text-muted">{{ cv.file_name }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>{{ cv.created_at|date:"d/m/Y" }}</div>
+                                            <div class="small text-muted">{{ cv.created_at|date:"H:i" }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{% url 'download_cv' cv.id %}" class="btn btn-sm btn-primary">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1">
+                                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M7 11l5 5l5 -5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M12 4l0 12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                Descargar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center p-5">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="#005AEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" stroke="#005AEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 17h6" stroke="#005AEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 13h6" stroke="#005AEE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <p class="text-muted">No hay CVs procesados aún.</p>
+                            <a href="{% url 'index' %}" class="btn btn-primary">
+                                Procesar un CV ahora
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    new Vue({
+        el: '#list-app',
+        data: {
+            // Si necesitas alguna propiedad reactiva para la lista
+        },
+        methods: {
+            // Métodos para la lista si son necesarios
+        }
+    });
+</script>
+{% endblock %}

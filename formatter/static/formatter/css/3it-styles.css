@@ -1,0 +1,351 @@
+:root {
+    /* Colores primarios */
+    --azul-tritiano: #000026;
+    --azul-electrico: #005AEE;
+    --turquesa: #2CD5C4;
+    
+    /* Colores secundarios */
+    --negro: #000000;
+    --gris: #F2F3F3;
+    --blanco: #FFFFFF;
+}
+
+/* Estilos generales */
+html,body {
+    font-family: 'Century Gothic', sans-serif;
+    background-color: var(--gris);
+    color: var(--azul-tritiano);
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: var(--azul-tritiano);
+}
+
+
+.lead {
+    color: var(--azul-electrico);
+}
+
+.text-3it-primary {
+    color: var(--azul-tritiano);
+}
+
+.text-3it-accent {
+    color: var(--azul-electrico);
+}
+
+.text-3it-turquesa {
+    color: var(--turquesa);
+}
+
+/* Fondos */
+.bg-3it-primary {
+    background-color: var(--azul-tritiano);
+}
+
+.bg-3it-accent {
+    background-color: var(--azul-electrico);
+}
+
+.bg-3it-turquesa {
+    background-color: var(--turquesa);
+}
+
+.bg-3it-gray {
+    background-color: var(--gris);
+}
+
+/* Componentes */
+.navbar-3it {
+    background-color: var(--azul-tritiano);
+    color: var(--blanco);
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.navbar-3it .nav-link {
+    color: var(--blanco);
+    font-weight: bold;
+    margin: 0 1rem;
+    transition: color 0.3s;
+}
+
+.navbar-3it .nav-link:hover,
+.navbar-3it .nav-link.active {
+    color: var(--azul-electrico);
+}
+
+.container-3it {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.card-3it {
+    background-color: var(--blanco);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 38, 0.1);
+    border: none;
+    overflow: hidden;
+}
+
+.card-3it .card-header {
+    background-color: var(--azul-tritiano);
+    color: var(--blanco);
+    font-weight: bold;
+    padding: 1rem 1.5rem;
+    border: none;
+}
+
+.card-3it .card-body {
+    padding: 1.5rem;
+}
+
+/* Botones */
+.btn-3it-primary {
+    background-color: var(--azul-electrico);
+    color: var(--blanco);
+    border: none;
+    border-radius: 30px;
+    padding: 0.5rem 2rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-3it-primary:hover {
+    background-color: var(--azul-tritiano);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 90, 238, 0.3);
+}
+
+.btn-3it-secondary {
+    background-color: var(--turquesa);
+    color: var(--azul-tritiano);
+    border: none;
+    border-radius: 30px;
+    padding: 0.5rem 2rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-3it-secondary:hover {
+    background-color: #1ab5a7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(44, 213, 196, 0.3);
+}
+
+.btn-3it-outline {
+    background-color: transparent;
+    color: var(--azul-electrico);
+    border: 2px solid var(--azul-electrico);
+    border-radius: 30px;
+    padding: 0.5rem 2rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-3it-outline:hover {
+    background-color: var(--azul-electrico);
+    color: var(--blanco);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 90, 238, 0.3);
+}
+
+/* Formularios */
+.form-control-3it {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 0.7rem 1rem;
+    transition: all 0.3s;
+}
+
+.form-control-3it:focus {
+    border-color: var(--azul-electrico);
+    box-shadow: 0 0 0 0.2rem rgba(0, 90, 238, 0.25);
+}
+
+.form-label-3it {
+    font-weight: bold;
+    color: var(--azul-tritiano);
+    margin-bottom: 0.5rem;
+}
+
+/* Tabla */
+.table-3it {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-3it thead th {
+    background-color: var(--azul-tritiano);
+    color: var(--blanco);
+    padding: 1rem;
+    font-weight: normal;
+    border: none;
+}
+
+.table-3it tbody tr:nth-child(odd) {
+    background-color: rgba(242, 243, 243, 0.5);
+}
+
+.table-3it td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Elementos decorativos */
+.decoration-top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(to bottom right, var(--azul-electrico), var(--turquesa));
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    z-index: 0;
+    opacity: 0.8;
+}
+
+.decoration-bottom-left {
+    position: absolute;
+    bottom: -50px;
+    left: -50px;
+    width: 150px;
+    height: 150px;
+    background-color: var(--turquesa);
+    opacity: 0.1;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.decoration-arrow {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+}
+
+.decoration-arrow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--azul-electrico);
+    clip-path: polygon(0 30%, 70% 30%, 70% 0, 100% 50%, 70% 100%, 70% 70%, 0 70%);
+}
+
+/* Animaciones */
+.loader-3it {
+    width: 100%;
+    height: 4px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to right, var(--azul-electrico), var(--turquesa));
+    z-index: 9999;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Avatar */
+.avatar-3it {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--azul-electrico);
+    color: var(--blanco);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Alertas */
+.alert-3it-success {
+    background-color: rgba(44, 213, 196, 0.2);
+    border-left: 4px solid var(--turquesa);
+    color: #155724;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.alert-3it-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.alert-3it-info {
+    background-color: rgba(0, 90, 238, 0.2);
+    border-left: 4px solid var(--azul-electrico);
+    color: #0c5460;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Neutralizar espacios de Bootstrap */
+.mt-0, .my-0, .m-0 {
+    margin-top: 0 !important;
+}
+
+.pt-0, .py-0, .p-0 {
+    padding-top: 0 !important;
+}
+
+/* Ajustes específicos */
+header, nav, .navbar {
+    margin-top: 0 !important;
+}
+
+/* Elementos que pueden estar causando el espacio */
+.alert, .cookie-banner, .notification-banner {
+    margin-top: 0 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-3it .nav-link {
+        margin: 0.5rem 0;
+    }
+    
+    .decoration-top-right,
+    .decoration-bottom-left {
+        display: none;
+    }
+    
+    .btn-3it-primary,
+    .btn-3it-secondary,
+    .btn-3it-outline {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}

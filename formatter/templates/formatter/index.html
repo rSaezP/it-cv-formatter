@@ -3,40 +3,79 @@
 {% block content %}
 <div id="app">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-lg-10 mx-auto">
             <div class="card">
-                <div class="card-header">
-                    <h5>Subir un CV para formatear</h5>
+                <div class="card-header d-flex align-items-center">
+                    <div class="me-2">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 17h6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 13h6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h5 class="mb-0">Subir un CV para formatear</h5>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="cv-form" @submit="onSubmit">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="cv-form" @submit.prevent="onSubmit">
                         {% csrf_token %}
                         
-                        <div class="mb-3">
-                            <label for="cv_file" class="form-label">Seleccionar CV (PDF o DOCX)</label>
-                            <input type="file" name="cv_file" id="cv_file" class="form-control" required accept=".pdf,.docx,.doc" @change="updateFileName">
-                            <div class="form-text">Formatos aceptados: PDF, DOCX</div>
-                            <div class="file-info" v-if="fileName">
-                                Archivo seleccionado: <span class="file-selected">\</span>
+                        <div class="mb-4">
+                            <label for="cv_file" class="form-label fw-bold">Seleccionar CV (PDF o DOCX)</label>
+                            <div class="input-group">
+                                <input type="file" name="cv_file" id="cv_file" class="form-control" 
+                                       required accept=".pdf,.docx,.doc" @change="updateFileName">
+                                <span class="input-group-text bg-light">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="#000026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" stroke="#000026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="form-text mt-2">Formatos aceptados: PDF, DOCX</div>
+                            <div class="file-info mt-2" v-if="fileName">
+                                <div class="d-flex align-items-center">
+                                    <span class="icon-check me-2" v-if="fileName">✓</span>
+                                    Archivo seleccionado: <span class="file-selected ms-1">\{{ fileName }}</span>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="template_file" class="form-label">Seleccionar plantilla (DOCX)</label>
-                            <input type="file" name="template_file" id="template_file" class="form-control" required accept=".docx" @change="updateTemplateName">
-                            <div class="form-text">Formato aceptado: DOCX</div>
-                            <div class="file-info" v-if="templateName">
-                                Plantilla seleccionada: <span class="file-selected">\</span>
+                        <div class="mb-4">
+                            <label for="template_file" class="form-label fw-bold">Seleccionar plantilla (DOCX)</label>
+                            <div class="input-group">
+                                <input type="file" name="template_file" id="template_file" class="form-control" 
+                                       required accept=".docx" @change="updateTemplateName">
+                                <span class="input-group-text bg-light">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2z" stroke="#000026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M4 8h18" stroke="#000026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 4v4" stroke="#000026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 4v4" stroke="#000026" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="form-text mt-2">Formato aceptado: DOCX</div>
+                            <div class="file-info mt-2" v-if="templateName">
+                                <div class="d-flex align-items-center">
+                                    <span class="icon-check me-2" v-if="templateName">✓</span>
+                                    Plantilla seleccionada: <span class="file-selected ms-1">\{{ templateName }}</span>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="mb-3">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <button type="submit" class="btn btn-primary" :disabled="isProcessing">
                                 <span v-if="isProcessing">
-                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                     Procesando...
                                 </span>
-                                <span v-else>Procesar CV</span>
+                                <span v-else>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                                        <path d="M5 12l5 5l10 -10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Procesar CV
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -45,4 +84,46 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            fileName: '',
+            templateName: '',
+            isProcessing: false
+        },
+        methods: {
+            updateFileName(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.fileName = file.name;
+                } else {
+                    this.fileName = '';
+                }
+            },
+            updateTemplateName(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.templateName = file.name;
+                } else {
+                    this.templateName = '';
+                }
+            },
+            onSubmit(event) {
+                this.isProcessing = true;
+                
+                // Emit global loading event
+                window.dispatchEvent(new CustomEvent('loading', { 
+                    detail: { isLoading: true } 
+                }));
+                
+                // Submit the form
+                event.target.submit();
+            }
+        }
+    });
+</script>
 {% endblock %}

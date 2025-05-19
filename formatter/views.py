@@ -18,7 +18,6 @@ from .models import FormattedCV
 from .utils import process_cv
 
 # Obtener la clave API de OpenAI desde variables de entorno
-OPENAI_API_KEY = "TU_CLAVE_API_AQUI"
 
 def index(request):
     if request.method == 'POST':
@@ -57,7 +56,8 @@ def index(request):
                 if result['success']:
                     # Guardar el registro en la base de datos
                     formatted_cv = FormattedCV()
-                    formatted_cv.original_file.save(
+                    # Cambio aquí: usar cv_file en lugar de original_file
+                    formatted_cv.cv_file.save(
                         os.path.basename(cv_path),
                         open(cv_path, 'rb')
                     )
@@ -103,11 +103,16 @@ def index(request):
         form = CVUploadForm()
     
     return render(request, 'formatter/index.html', {'form': form})
-
 def list_cvs(request):
     cvs = FormattedCV.objects.all().order_by('-created_at')
-    return render(request, 'formatter/list.html', {'cvs': cvs})
-
+    # Modificar el formato de fecha aquí
+    for cv in cvs:
+        # Formato para Chile: DD/MM/YYYY HH:MM
+        cv.formatted_date = cv.created_at.strftime('%d/%m/%Y %H:%M')
+    
+    return render(request, 'formatter/list_cvs.html', {'cvs': cvs})
+    
+    return render(request, 'list_cvs.html', {'cvs': cvs})
 def download_cv(request, cv_id):
     try:
         cv = FormattedCV.objects.get(id=cv_id)

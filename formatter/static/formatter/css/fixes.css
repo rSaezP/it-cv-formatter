@@ -1,0 +1,33 @@
+body, html {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Quitar margen a todos los elementos potenciales */
+header, nav, .navbar, .navbar-3it, .container-fluid, .container,
+div[class^="mt-"], div[class^="pt-"], div[class^="m-"], div[class^="p-"],
+.row, .col, div[class*="col-"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Forzar el navbar a estar al tope */
+.navbar-3it, .navbar {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1030;
+}
+
+/* Eliminar elementos ocultos que pueden causar espacios */
+.d-none, .invisible, .hidden, .sr-only, [hidden], [style*="display: none"] {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
