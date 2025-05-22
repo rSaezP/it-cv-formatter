@@ -29,14 +29,19 @@
                                 </thead>
                                 <tbody>
                                     {% for cv in cvs %}
-                                    <tr>
+                                    <tr {% if forloop.first and not cv.downloaded %}class="table-success highlight-row"{% endif %}>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-placeholder me-3" style="background-color: var(--azul-electrico); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                                                     {{ cv.candidate_name|slice:":1" }}
                                                 </div>
                                                 <div>
-                                                    <div class="fw-bold">{{ cv.candidate_name }}</div>
+                                                    <div class="fw-bold">
+                                                        {{ cv.candidate_name }}
+                                                        {% if forloop.first and not cv.downloaded %}
+                                                            <span class="badge bg-success ms-2">✅ Recién procesado</span>
+                                                        {% endif %}
+                                                    </div>
                                                     <div class="small text-muted">{{ cv.file_name }}</div>
                                                 </div>
                                             </div>
@@ -46,13 +51,17 @@
                                             <div class="small text-muted">{{ cv.created_at|date:"H:i" }}</div>
                                         </td>
                                         <td class="text-center">
-                                            <a href="{% url 'download_cv' cv.id %}" class="btn btn-sm btn-primary">
+                                            <a href="{% url 'download_cv' cv.id %}" class="btn btn-sm btn-primary {% if forloop.first and not cv.downloaded %}btn-lg pulse-animation download-highlight{% endif %}">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1">
                                                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                     <path d="M7 11l5 5l5 -5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                     <path d="M12 4l0 12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
-                                                Descargar
+                                                {% if forloop.first and not cv.downloaded %}
+                                                    🎉 ¡Descargar ahora!
+                                                {% else %}
+                                                    Descargar
+                                                {% endif %}
                                             </a>
                                         </td>
                                     </tr>
@@ -79,6 +88,121 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Estilos para destacar el CV recién procesado */
+.highlight-row {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+    border-left: 4px solid #28a745;
+    animation: highlight-glow 3s ease-in-out;
+}
+
+.highlight-row td {
+    background-color: rgba(40, 167, 69, 0.05) !important;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+.download-highlight {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    border: none !important;
+    font-weight: bold !important;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+@keyframes highlight-glow {
+    0% {
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.badge.bg-success {
+    animation: badge-bounce 2s ease-in-out infinite;
+}
+
+@keyframes badge-bounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Efecto de hover mejorado para botones de descarga */
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 90, 238, 0.4);
+}
+
+.download-highlight:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Notificación toast personalizada */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.custom-toast {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    min-width: 350px;
+}
+
+.custom-toast .icon {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+@keyframes slideIn {
+    from { 
+        transform: translateX(100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -86,10 +210,84 @@
     new Vue({
         el: '#list-app',
         data: {
-            // Si necesitas alguna propiedad reactiva para la lista
+            showWelcomeMessage: false
         },
         methods: {
-            // Métodos para la lista si son necesarios
+            showToast(message, icon = '🎉') {
+                const container = document.querySelector('.toast-container') || 
+                                 (() => {
+                                     const div = document.createElement('div');
+                                     div.className = 'toast-container';
+                                     document.body.appendChild(div);
+                                     return div;
+                                 })();
+                
+                const toast = document.createElement('div');
+                toast.className = 'custom-toast';
+                toast.innerHTML = `
+                    <span class="icon">${icon}</span>
+                    <span>${message}</span>
+                `;
+                container.appendChild(toast);
+                
+                setTimeout(() => toast.remove(), 5000);
+            }
+        },
+        mounted() {
+            // Verificar si hay un CV recién procesado (primer elemento Y no descargado)
+            const highlightRow = document.querySelector('.highlight-row');
+            
+            if (highlightRow) {
+                // Hacer scroll suave hacia el elemento destacado
+                setTimeout(() => {
+                    highlightRow.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 300);
+            }
+            
+            // Solo para botones destacados: cambiar visual después del click
+            const downloadButtons = document.querySelectorAll('.btn-primary');
+            downloadButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Si es un botón destacado (verde), cambiar visual inmediatamente
+                    if (btn.classList.contains('download-highlight')) {
+                        // Remover efectos visuales inmediatamente
+                        const row = btn.closest('tr');
+                        row.classList.remove('table-success', 'highlight-row');
+                        
+                        // Remover badge
+                        const badge = row.querySelector('.badge');
+                        if (badge) badge.remove();
+                        
+                        // Cambiar botón
+                        btn.classList.remove('btn-lg', 'pulse-animation', 'download-highlight');
+                        btn.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1">
+                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7 11l5 5l5 -5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 4l0 12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Descargar
+                        `;
+                        
+                        // Marcar como descargado en segundo plano (sin esperar respuesta)
+                        const originalHref = btn.href;
+                        const cvId = originalHref.split('/').slice(-2, -1)[0];
+                        
+                        fetch(`/mark-downloaded/${cvId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                                'Content-Type': 'application/json',
+                            },
+                        }).catch(() => {}); // Ignorar errores
+                    }
+                    
+                    // La descarga normal continúa sin interrupciones
+                });
+            });
         }
     });
 </script>

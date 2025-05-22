@@ -16,4 +16,7 @@ urlpatterns = [
     path('initiate-login/', views.initiate_login, name='login'),
     path('authorize/', views.authorize, name='authorize'),
     path('logout/', views.logout_view, name='logout'),
+
+    # Ruta para la vista de descarga
+    path('mark-downloaded/<int:cv_id>/', views.mark_as_downloaded, name='mark_downloaded'),
 ]

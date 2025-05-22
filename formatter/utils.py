@@ -1,10 +1,13 @@
 ﻿import os
 import pdfplumber
 import docx
+from docx import Document
+from docx.shared import Pt, Cm
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_TAB_ALIGNMENT
+from docx.enum.text import WD_TAB_LEADER
 import re
 import traceback
 import datetime
-from docx.shared import Pt, Cm
 from openai import OpenAI
 
 # Funciones para extraer texto
@@ -40,24 +43,24 @@ def extract_text_from_word(docx_path):
 
 # Prompt adaptado para OpenAI GPT-4
 def create_prompt(cv_text):
-    return f'''
+    return f"""
     Eres un especialista en RRHH y debes extraer TODA la información relevante del siguiente CV, sin omitir ninguna experiencia laboral. Es CRUCIAL que captures todo el historial laboral completo.
     
     Necesito que extraigas:
     
-    1. NOMBRE COMPLETO DEL CANDIDATO
+    1. NOMBRE Y APELLIDO (exactamente como aparece)
     
     2. PROFESIÓN DEL CANDIDATO (exactamente como aparece)
     
     3. RESEÑA PROFESIONAL (exactamente 4 puntos):
        a) Experiencia profesional y áreas de especialización
-       b) Roles principales en los que se ha desempeñado
+       b) Ultimo rol desempeñado
        c) Tipos de proyectos en los que ha trabajado
        d) Habilidades blandas destacadas
     
-    4. HISTORIAL LABORAL (IMPORTANTE: extrae TODAS las experiencias, sin omitir ninguna):
+    4. Experiencia Laboral (IMPORTANTE: extrae TODAS las experiencias, sin omitir ninguna):
        - Cargo y empresa (formato exacto: "Cargo, Empresa")
-       - Período completo (formato exacto: "Mes Año -- Mes Año" o "Mes Año -- A la fecha")
+       - Período completo (formato exacto: "Mes Año - Mes Año" o "Mes Año - A la fecha")
        - Cliente (si aplica, formato: "Cliente: Nombre")
        - TODAS las responsabilidades/experiencias mencionadas para cada trabajo
        - Tecnologías utilizadas (separadas por comas)
@@ -72,13 +75,21 @@ def create_prompt(cv_text):
        - Formato: "Año, Nombre del curso, Institución"
     
     INSTRUCCIONES CRÍTICAS:
+    - Sigue TODAS las instrucciones siguientes al pie de la letra, sin omitir ninguna.
     - NO OMITAS ninguna experiencia laboral. El CV completo debe ser procesado.
     - NO INCLUYAS frases como "(Tipo de experiencia y rubros)" o similar
-    - Organiza el historial laboral en orden cronológico inverso (más reciente primero)
+    - Organiza la experiencia laboral en orden cronológico inverso (más reciente primero)
     - Incluye TODAS las tecnologías mencionadas en el CV
-    - Si no encuentras alguna información específica, indica "No especificado"
     - No inventes información, pero los meses deben ser Enero, Febrero, etc.
-    
+    - La experiencia laboral debe estar en tercera persona
+    - Variedad léxica: Evita repetir palabras, conectores, adjetivos o verbos. Usa sinónimos si es necesario. 
+    - Ortografía y gramática: Corrige tildes, comas mal puestas o faltantes y otros errores de redacción.
+    - Tareas adicionales: Si faltan tareas relevantes para el cargo, agrégalas donde corresponda segun la herramienta que uso en tercera persona. 
+    - Cantidad mínima de tareas de la experiencia laboral: Para todos los roles profesionales, se deben incluir al menos 4 tareas. 
+    - En la experiencia laboral en la parte de tecnologías, deben ser coherentes al cargo: Verifica que las herramientas mencionadas sean consistentes con las tareas realizadas.
+    - En la parte del nombre, por ejemplo si su nombre es Guillermo Esteban Díaz Quezada solamente se debe poner Guillermo Díaz, eso es un ejemplo, debes realizarlo segun el nombre que aparece en el CV.
+    - Si el cliente no está en un campo explícito pero se menciona en la descripción de la experiencia laboral (por ejemplo: "soporte a empresas del grupo Falabella"), extrae ese nombre y colócalo en el campo <CLIENTE>. Si no hay cliente, deja el campo vacío o pon "No aplica".
+
     CV A ANALIZAR:
     
     {cv_text}
@@ -86,7 +97,7 @@ def create_prompt(cv_text):
     Responde usando este formato exacto:
     
     <NOMBRE>
-    Nombre completo
+    Nombre y apellido 
     </NOMBRE>
     
     <PROFESION>
@@ -95,7 +106,7 @@ def create_prompt(cv_text):
     
     <RESENA>
     - Primer punto sobre experiencia
-    - Segundo punto sobre roles
+    - Segundo punto sobre el utimo rol desempeñado
     - Tercer punto sobre proyectos
     - Cuarto punto sobre habilidades
     </RESENA>
@@ -104,7 +115,7 @@ def create_prompt(cv_text):
     <TRABAJO>
     <CARGO>Cargo, Empresa</CARGO>
     <PERIODO>Período completo (Mes Año - Mes Año)</PERIODO>
-    <CLIENTE>Cliente (si aplica)</CLIENTE>
+    <CLIENTE>Cliente (si se menciona en la narrativa, extrae el nombre; si no, deja vacío o pon "No aplica")</CLIENTE>
     <RESPONSABILIDADES>
     - Responsabilidad 1
     - Responsabilidad 2
@@ -114,7 +125,6 @@ def create_prompt(cv_text):
     </RESPONSABILIDADES>
     <TECNOLOGIAS>Tecnología 1, Tecnología 2, etc.</TECNOLOGIAS>
     </TRABAJO>
-    
     (Repite para CADA posición, sin omitir ninguna)
     </HISTORIAL>
     
@@ -134,7 +144,7 @@ def create_prompt(cv_text):
     - Curso 1
     - Curso 2
     </CURSOS>
-    '''
+    """
 
 # Reemplazar process_with_gemini por process_with_openai
 def process_with_openai(cv_text, api_key, model="o4-mini"):
@@ -232,7 +242,11 @@ def extract_sections(response_text):
             # Extraer campos específicos
             cargo_match = re.search(r'<CARGO>(.*?)</CARGO>', trabajo_text, re.DOTALL)
             if cargo_match:
-                trabajo["cargo"] = cargo_match.group(1).strip()
+                cargo_text = cargo_match.group(1)
+                # Reemplazar saltos de línea y tabs por espacios, y luego múltiples espacios por uno solo
+                cargo_text = re.sub(r'[\r\n\t]+', ' ', cargo_text)
+                cargo_text = re.sub(r'\s+', ' ', cargo_text)
+                trabajo["cargo"] = cargo_text.strip()
             
             periodo_match = re.search(r'<PERIODO>(.*?)</PERIODO>', trabajo_text, re.DOTALL)
             if periodo_match:
@@ -314,7 +328,7 @@ def replace_paragraph_text(paragraph, new_text):
 def fill_template_exact(cv_data, template_path, output_path):
     try:
         # Cargar plantilla
-        doc = docx.Document(template_path)
+        doc = Document(template_path)
         
         # 1. REEMPLAZAR NOMBRE Y PROFESIÓN
         for para in doc.paragraphs:
@@ -329,7 +343,7 @@ def fill_template_exact(cv_data, template_path, output_path):
         for para in doc.paragraphs:
             if any(marker in para.text for marker in [
                 "(Tipo de experiencia y rubros)",
-                "(3 roles relevantes",
+                "(último rol que ha desempeñado",
                 "(Tipo de proyectos",
                 "(Soft skills"
             ]):
@@ -338,7 +352,7 @@ def fill_template_exact(cv_data, template_path, output_path):
         # Ordenar los párrafos según el orden estándar
         resena_order = [
             "(Tipo de experiencia y rubros)",
-            "(3 roles relevantes",
+            "(último rol que ha desempeñado",
             "(Tipo de proyectos",
             "(Soft skills"
         ]
@@ -358,7 +372,7 @@ def fill_template_exact(cv_data, template_path, output_path):
         
         for i, para in enumerate(doc.paragraphs):
             if para.text.strip() == "Cargo, Empresa":
-                para.clear()
+                para.text = ''
                 cargo_paragraphs.append(i)
         
         # Extraer bloques de experiencia a partir de los cargos
@@ -373,16 +387,15 @@ def fill_template_exact(cv_data, template_path, output_path):
                 
                 # Cargo, Empresa (en cursiva y negrita, sin palabra "Cargo")
                 para = doc.paragraphs[start_idx]
-                para.clear()
-                run = para.add_run(trabajo["cargo"])
-                run.bold = True
-                run.italic = True
-                run.font.size = Pt(12)
-                
+                para.text = trabajo["cargo"]  # Sobrescribe directamente
+                para.style = 'CARGO Y EMPRESA'
+
                 # Fecha
                 fecha_idx = start_idx + 1
                 if fecha_idx < end_idx:
-                    replace_paragraph_text(doc.paragraphs[fecha_idx], trabajo["periodo"])
+                    para_fecha = doc.paragraphs[fecha_idx]
+                    para_fecha.text = trabajo["periodo"]
+                    para_fecha.style = "FECHAS"
                 
                 # Cliente (puede o no existir)
                 cliente_idx = fecha_idx + 1
@@ -430,17 +443,29 @@ def fill_template_exact(cv_data, template_path, output_path):
                     para.clear()
                     tech_run = para.add_run("Tecnologías utilizadas: ")
                     tech_run.bold = True
-                    para.add_run(trabajo["tecnologias"])
+                     # Asegura que siempre sea string separado por coma
+                    tecnologias = trabajo["tecnologias"]
+                    if isinstance(tecnologias, list):
+                        tecnologias = ", ".join(tecnologias)
+                    para.add_run(tecnologias)
         
         # 4. STACK TECNOLÓGICO
         try:
-            stack_table = None
+            stack_paragraph_idx = None
 
             # Buscar la tabla con la palabra clave "STACK TECNOLÓGICO" en la primera celda
-            for table in doc.tables:
-                if table.cell(0, 0).text.strip().lower() == "stack tecnológico":
+            for i, para in enumerate(doc.paragraphs):
+                if para.text.strip().lower() == "stack tecnológico":
+                    stack_paragraph_idx = i
+                    break
+
+            # Buscar la tabla después del párrafo
+            stack_table = None
+            if stack_paragraph_idx is not None:
+                for table in doc.tables:
+                # Opcional: puedes agregar lógica para verificar que la tabla esté justo después del párrafo
                     stack_table = table
-                break
+                    break
 
             if not stack_table:
                 print("⚠️ No se encontró la tabla de stack tecnológico.")
@@ -454,16 +479,12 @@ def fill_template_exact(cv_data, template_path, output_path):
                     print("⚠️ No hay tecnologías para insertar.")
                 else:
                     # Asegurarse de que haya al menos dos filas (título + contenido)
-                    while len(stack_table.rows) < 2:
+                    while len(stack_table.rows) < 1:
                         stack_table.add_row()
 
-                    # Asegurarse de que la segunda fila tenga 2 celdas
-                    while len(stack_table.rows[1].cells) < 2:
-                        stack_table.rows[1]._tr.addnext(stack_table._tbl.tr_lst[-1])
-
-                    # Limpiar las dos celdas de la segunda fila
-                    for j in range(2):
-                        stack_table.cell(1, j).text = ""
+                    # Limpiar las dos celdas de la primera fila
+                    for i in range(2):
+                        stack_table.cell(0, i).text = ""
 
                     # Dividir tecnologías mitad y mitad
                     mid = (len(tech_list) + 1) // 2
@@ -471,31 +492,34 @@ def fill_template_exact(cv_data, template_path, output_path):
                     col2 = tech_list[mid:]
 
                     # Insertar en la columna 0
-                    cell1 = stack_table.cell(1, 0)
+                    cell1 = stack_table.cell(0, 0)
+                    
                     for tech in col1:
+
                         if tech and tech.lower() != "no especificado":
                             p = cell1.add_paragraph()
-                            p.paragraph_format.tab_stops.add_tab_stop(Cm(0.64))
-                            bullet= "\u25AA" + "\t"
-                            p.add_run(bullet).bold = True
-                            p.add_run(tech)
+                            p.style = "STACK"
+                            run = p.add_run(tech)
+                            run.font.size = Pt(11)
+                    
                     cell1.add_paragraph()
 
                     # Insertar en la columna 1
-                    cell2 = stack_table.cell(1, 1)
+                    cell2 = stack_table.cell(0, 1)
+                    
                     for tech in col2:
                         if tech and tech.lower() != "no especificado":
                             p = cell2.add_paragraph()
-                            p.paragraph_format.tab_stops.add_tab_stop(Cm(0.64))
-                            bullet= "\u25AA" + "\t"
-                            p.add_run(bullet).bold = True
-                            p.add_run(tech)
+                            p.style = "STACK"                
+                            run = p.add_run(tech)
+                            run.font.size = Pt(11)
+                    
+                    cell2.add_paragraph()
 
                     print("✅ Sección stack tecnológico completada correctamente.")
 
         except Exception as e:
             print(f"❌ Error al procesar stack tecnológico: {str(e)}")
-
         
         # 5. FORMACIÓN ACADÉMICA
         # Encontrar los párrafos de formación académica
@@ -506,7 +530,7 @@ def fill_template_exact(cv_data, template_path, output_path):
                 in_formacion = True
             elif para.text.strip() == "CURSOS Y CAPACITACIONES":
                 in_formacion = False
-            elif in_formacion and "Año, carrera de egreso, Institución" in para.text:
+            elif in_formacion and "Año, carrera de egreso, Institución que certifica." in para.text:
                 formacion_paragraphs.append(i)
         
         # Reemplazar cada párrafo con la formación académica
@@ -523,7 +547,7 @@ def fill_template_exact(cv_data, template_path, output_path):
         for i, para in enumerate(doc.paragraphs):
             if para.text.strip() == "CURSOS Y CAPACITACIONES":
                 in_cursos = True
-            elif in_cursos and "Año (opcional), Curso, Institución" in para.text:
+            elif in_cursos and "Año (opcional), Curso, Institución que certifica." in para.text:
                 cursos_paragraphs.append(i)
         
         # Reemplazar cada párrafo con los cursos

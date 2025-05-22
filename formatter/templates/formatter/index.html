@@ -21,7 +21,7 @@
                         {% csrf_token %}
                         
                         <div class="mb-4">
-                            <label for="cv_file" class="form-label fw-bold">Seleccionar CV (PDF o DOCX)</label>
+                            <label for="cv_file" class="form-label fw-bold">Seleccionar CV </label>
                             <div class="input-group">
                                 <input type="file" name="cv_file" id="cv_file" class="form-control" 
                                        required accept=".pdf,.docx,.doc" @change="updateFileName">
@@ -32,7 +32,7 @@
                                     </svg>
                                 </span>
                             </div>
-                            <div class="form-text mt-2">Formatos aceptados: PDF, DOCX</div>
+                            <div class="form-text mt-2">Formatos aceptados: PDF </div>
                             <div class="file-info mt-2" v-if="fileName">
                                 <div class="d-flex align-items-center">
                                     <span class="icon-check me-2" v-if="fileName">✓</span>
@@ -42,7 +42,7 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label for="template_file" class="form-label fw-bold">Seleccionar plantilla (DOCX)</label>
+                            <label for="template_file" class="form-label fw-bold">Seleccionar plantilla </label>
                             <div class="input-group">
                                 <input type="file" name="template_file" id="template_file" class="form-control" 
                                        required accept=".docx" @change="updateTemplateName">

@@ -13,6 +13,8 @@ import base64
 import requests
 import urllib.parse
 from authlib.integrations.requests_client import OAuth2Session
+from django.utils import timezone
+from django.http import JsonResponse
 
 # Cargar variables de entorno desde el archivo .env
 env_path = Path('.') / '.env'
@@ -26,7 +28,6 @@ from .utils import process_cv
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 # -------- VISTAS PARA FORMATEO DE CVs --------
-
 def index(request):
     # Si el usuario no está autenticado, redirigir al login
     if not request.session.get('cognito_user'):
@@ -84,11 +85,11 @@ def index(request):
                     formatted_cv.candidate_name = result.get('name', 'Sin nombre')
                     formatted_cv.save()
                     
-                    # Preparar la respuesta de descarga
-                    response = FileResponse(
-                        open(formatted_cv.processed_file.path, 'rb'),
-                        as_attachment=True,
-                        filename=output_basename
+                    # Agregar mensaje de éxito y redirigir al historial
+                    messages.success(
+                        request, 
+                        f"✅ CV procesado exitosamente para {result.get('name', 'el candidato')}. "
+                        f"Puedes descargarlo desde el historial."
                     )
                     
                     # Limpiar archivos temporales
@@ -97,7 +98,8 @@ def index(request):
                     except:
                         pass
                     
-                    return response
+                    # Redirigir al historial en lugar de descargar directamente
+                    return redirect('list_cvs')
                 else:
                     # Limpiar archivos temporales
                     try:
@@ -120,6 +122,7 @@ def index(request):
     return render(request, 'formatter/index.html', {
         'form': form,
         'user_info': user_info
+       
     })
 
 def list_cvs(request):
@@ -138,7 +141,9 @@ def list_cvs(request):
     
     return render(request, 'formatter/list_cvs.html', {
         'cvs': cvs,
-        'user_info': user_info
+        'user_info': user_info,
+        'login_page': True,
+        
     })
 
 def download_cv(request, cv_id):
@@ -148,6 +153,14 @@ def download_cv(request, cv_id):
     
     try:
         cv = FormattedCV.objects.get(id=cv_id)
+        
+        # Marcar como descargado
+        if not cv.downloaded:
+            cv.downloaded = True
+            from django.utils import timezone  # Agregar este import arriba del archivo
+            cv.downloaded_at = timezone.now()
+            cv.save()
+        
         return FileResponse(
             open(cv.processed_file.path, 'rb'),
             as_attachment=True,
@@ -156,6 +169,7 @@ def download_cv(request, cv_id):
     except FormattedCV.DoesNotExist:
         messages.error(request, "CV no encontrado")
         return redirect('list_cvs')
+    
 
 #autenticacion
 
@@ -264,3 +278,16 @@ def logout_view(request):
         
         # Redirigir a la página de login
         return redirect('login_view')
+    
+    #funcion para desmarcar una vez descargado el cv
+def mark_as_downloaded(request, cv_id):
+    if request.method == 'POST':
+        try:
+            cv = FormattedCV.objects.get(id=cv_id)
+            cv.downloaded = True
+            cv.downloaded_at = timezone.now()
+            cv.save()
+            return JsonResponse({'success': True})
+        except FormattedCV.DoesNotExist:
+            return JsonResponse({'success': False})
+    return JsonResponse({'success': False})

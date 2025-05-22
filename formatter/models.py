@@ -25,6 +25,10 @@ class FormattedCV(models.Model):
         auto_now_add=True
     )
     
+    # Campos para rastrear descarga - AGREGAR ESTAS DOS LÍNEAS AQUÍ
+    downloaded = models.BooleanField(default=False)
+    downloaded_at = models.DateTimeField(null=True, blank=True)
+    
     def __str__(self):
         return f"CV de {self.candidate_name}"
     

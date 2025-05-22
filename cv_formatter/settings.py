@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Cargar variables de entorno desde el archivo .env
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -29,9 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,11 +44,8 @@ INSTALLED_APPS = [
     #'oauth2_provider',
     #'cognito_redux',
 ]
-load_dotenv()
 
-
-
-
+# Configuración de AWS Cognito
 COGNITO = {
     'CLIENT_ID': os.getenv('COGNITO_CLIENT_ID'),
     'CLIENT_SECRET': os.getenv('COGNITO_CLIENT_SECRET'),
@@ -56,6 +53,15 @@ COGNITO = {
     'REDIRECT_URI': os.getenv('COGNITO_REDIRECT_URI'),
     'LOGOUT_URI': os.getenv('COGNITO_LOGOUT_URI'),
 }
+
+# DEBUG TEMPORAL - Eliminar después de probar
+print("🔍 DEBUG - Verificando variables de entorno:")
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"Archivo .env existe: {(BASE_DIR / '.env').exists()}")
+print(f"COGNITO_CLIENT_ID: {os.getenv('COGNITO_CLIENT_ID')}")
+print(f"COGNITO_CLIENT_SECRET: {os.getenv('COGNITO_CLIENT_SECRET')[:10]}..." if os.getenv('COGNITO_CLIENT_SECRET') else "None")
+print(f"OPENAI_API_KEY: {os.getenv('OPENAI_API_KEY')[:10]}..." if os.getenv('OPENAI_API_KEY') else "None")
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',  # Importante para las sesiones
@@ -71,7 +77,6 @@ MIDDLEWARE = [
 # Configuración de sesiones (recomendado para mantener la sesión durante más tiempo)
 SESSION_COOKIE_AGE = 86400  # Duración de la sesión en segundos (24 horas)
 SESSION_SAVE_EVERY_REQUEST = True  # Refresca la sesión en cada petición
-
 
 ROOT_URLCONF = 'cv_formatter.urls'
 
@@ -92,10 +97,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cv_formatter.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -103,10 +106,8 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -122,36 +123,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
 # Configuración para archivos de medios
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-#cors_allowed_origins = True 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
