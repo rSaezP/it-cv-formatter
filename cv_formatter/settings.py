@@ -47,14 +47,7 @@ INSTALLED_APPS = [
 load_dotenv()
 
 
-# Configuración de AWS Cognito
-COGNITO = {
-    'CLIENT_ID': '11d4vgm9ebal4e1icr630fg7mp',
-    'CLIENT_SECRET': '1vr5bg8k6d6uea3dimmnpcetspigm94as6vqrpqdkcvvd743ouui',
-    'DISCOVERY_URL': 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lP9Tp4Io5/.well-known/openid-configuration',
-    'REDIRECT_URI': 'http://localhost:8000/authorize/',
-    'LOGOUT_URI': 'http://localhost:8000/',
-}
+
 
 COGNITO = {
     'CLIENT_ID': os.getenv('COGNITO_CLIENT_ID'),
