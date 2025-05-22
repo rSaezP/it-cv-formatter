@@ -41,3 +41,4 @@ Thumbs.db
 
 # OpenAI API keys (para seguridad)
 *api_key*
+.env

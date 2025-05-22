@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +44,8 @@ INSTALLED_APPS = [
     #'oauth2_provider',
     #'cognito_redux',
 ]
+load_dotenv()
+
 
 # Configuración de AWS Cognito
 COGNITO = {
@@ -53,7 +56,13 @@ COGNITO = {
     'LOGOUT_URI': 'http://localhost:8000/',
 }
 
-
+COGNITO = {
+    'CLIENT_ID': os.getenv('COGNITO_CLIENT_ID'),
+    'CLIENT_SECRET': os.getenv('COGNITO_CLIENT_SECRET'),
+    'DISCOVERY_URL': os.getenv('COGNITO_DISCOVERY_URL'),
+    'REDIRECT_URI': os.getenv('COGNITO_REDIRECT_URI'),
+    'LOGOUT_URI': os.getenv('COGNITO_LOGOUT_URI'),
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',  # Importante para las sesiones
