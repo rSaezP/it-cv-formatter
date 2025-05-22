@@ -40,18 +40,36 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'formatter',    # Nuestra aplicación
     'corsheaders',  # Para CORS
+    #'oauth2_provider',
+    #'cognito_redux',
 ]
 
+# Configuración de AWS Cognito
+COGNITO = {
+    'CLIENT_ID': '11d4vgm9ebal4e1icr630fg7mp',
+    'CLIENT_SECRET': '1vr5bg8k6d6uea3dimmnpcetspigm94as6vqrpqdkcvvd743ouui',
+    'DISCOVERY_URL': 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lP9Tp4Io5/.well-known/openid-configuration',
+    'REDIRECT_URI': 'http://localhost:8000/authorize/',
+    'LOGOUT_URI': 'http://localhost:8000/',
+}
+
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # Middleware de CORS
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Importante para las sesiones
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Añade tu middleware de autenticación personalizado aquí
+    'formatter.middleware.AuthenticationMiddleware',  # Añade esta línea cuando hayas creado el middleware
 ]
+
+# Configuración de sesiones (recomendado para mantener la sesión durante más tiempo)
+SESSION_COOKIE_AGE = 86400  # Duración de la sesión en segundos (24 horas)
+SESSION_SAVE_EVERY_REQUEST = True  # Refresca la sesión en cada petición
+
 
 ROOT_URLCONF = 'cv_formatter.urls'
 
@@ -101,6 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 
 # Internationalization

@@ -1,0 +1,75 @@
+{% extends 'formatter/base.html' %}
+{% load static %}
+
+{% block content %}
+<div id="app">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <div class="me-2">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 7a4 4 0 1 1 -8 0a4 4 0 0 1 8 0z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 14a8 8 0 0 0 -8 8h16a8 8 0 0 0 -8 -8z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h5 class="mb-0">Iniciar sesión</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'formatter/img/logo-3it.png' %}" alt="Logo 3IT" height="80" class="mb-3">
+                        <p class="text-accent-3it mb-4">Ingresa con tus credenciales para acceder al sistema</p>
+                    </div>
+                    
+                    {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error_message }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 col-lg-8 mx-auto mt-4">
+                        <a href="{% url 'login' %}" class="btn btn-primary" id="login-button">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M20 12h-13" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17 15l3 -3l-3 -3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Iniciar sesión con AWS Cognito
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <small class="text-muted">Para acceder al sistema, debes utilizar tu cuenta autorizada</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            isLoading: false
+        },
+        methods: {
+            startLogin() {
+                this.isLoading = true;
+                
+                // Emit global loading event
+                window.dispatchEvent(new CustomEvent('loading', { 
+                    detail: { isLoading: true } 
+                }));
+            }
+        },
+        mounted() {
+            const loginButton = document.getElementById('login-button');
+            if (loginButton) {
+                loginButton.addEventListener('click', this.startLogin);
+            }
+        }
+    });
+</script>
+{% endblock %}
